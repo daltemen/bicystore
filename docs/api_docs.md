@@ -2,6 +2,10 @@
 
 This api will allow you to have a bicycle the one you want
 
+For Get and Create bicycles:
+
+* [Bicycles](bicycles_docs.md)
+
 EndPoints for Bicycle Parts
 
 * Create Brakes : `POST /bicystore/api/v1/brakes`
@@ -21,13 +25,6 @@ EndPoints for Bicycle Parts
 
 * Create Wheels : `POST /bicystore/api/v1/wheels`
 * List Wheels : `GET /bicystore/api/v1/wheels`
-
-* Create Wheels : `POST /bicystore/api/v1/wheels`
-* List Wheels : `GET /bicystore/api/v1/wheels`
-
-For Get and Create bicycles:
-
-* [Bicycles](bicycles_docs.md)
 
 For Create Parts the body of request is the same :D !
 
