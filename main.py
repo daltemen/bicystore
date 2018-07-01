@@ -9,69 +9,68 @@ app = Flask(__name__)
 
 @app.route('/bicystore/api/v1/bicycles/<int:bicycle_id>', methods=['GET', 'PUT', 'DELETE'])
 def bicycles(bicycle_id):
-    bicycle = ModelController.get_model_by_slug_name('bicycle')
+    bicycle = ModelController.get_instance_by_slug_name('bicycle')
     bicycle = bicycle.get_by_id(int(bicycle_id))
     if bicycle is not None:
         if request.method == 'GET':
             return jsonify({
                 'bicycle': {
                     'id': bicycle.key.id(),
-                    'wheels': bicycle.wheels,
-                    'saddle': bicycle.saddle,
-                    'frame': bicycle.frame,
-                    'chain': bicycle.chain,
-                    'fork': bicycle.fork,
-                    'brakes': bicycle.brakes
+                    'wheels': bicycle.wheels[0].name if bicycle.wheels else None,
+                    'saddle': bicycle.saddle[0].name if bicycle.saddle else None,
+                    'frame': bicycle.frame[0].name if bicycle.frame else None,
+                    'chain': bicycle.chain[0].name if bicycle.chain else None,
+                    'fork': bicycle.fork[0].name if bicycle.fork else None,
+                    'brakes': bicycle.brakes[0].name if bicycle.brakes else None,
                 }
             })
         elif request.method == 'PUT':
-            import pdb; pdb.set_trace()
-            bicycle = ModelController.get_model_for_update(model_name='bicycle', request_dict=request.json)
-            # TODO: Do PUT method
+            bicycle = ModelController.get_model_for_update(
+                id_model=bicycle_id, model_name='bicycle',
+                request_dict=request.json)
+            bicycle.put()
             return jsonify({
                 'bicycle': {
                     'id': bicycle.key.id(),
-                    'wheels': bicycle.wheels,
-                    'saddle': bicycle.saddle,
-                    'frame': bicycle.frame,
-                    'chain': bicycle.chain,
-                    'fork': bicycle.fork,
-                    'brakes': bicycle.brakes
+                    'wheels': bicycle.wheels[0].name if bicycle.wheels else None,
+                    'saddle': bicycle.saddle[0].name if bicycle.saddle else None,
+                    'frame': bicycle.frame[0].name if bicycle.frame else None,
+                    'chain': bicycle.chain[0].name if bicycle.chain else None,
+                    'fork': bicycle.fork[0].name if bicycle.fork else None,
+                    'brakes': bicycle.brakes[0].name if bicycle.brakes else None,
                 }
             })
         elif request.method == 'DELETE':
-            bicycle.delete()
-            return jsonify({
-                'message': 'successful'
-            })
+            bicycle.key.delete()
         else:
             return abort(400)
 
     return jsonify({'bicycle': {}})
 
 
-@app.route('/bicystore/api/v1/bicycles', methods=['POST'])
-def post_bicycle():
-    bicycle = ModelController.get_model_for_creation(model_name='bicycle', request_dict=request.json)
-    if bicycle is None:
-        abort(400)
-    bicycle.put()
-    return jsonify({
-        'bicycle': {
-            'id': bicycle.key.id(),
-            'wheels': bicycle.wheels[0].key.id() if bicycle.wheels else None,
-            'saddle': bicycle.saddle[0].key.id() if bicycle.saddle else None,
-            'frame': bicycle.frame[0].key.id() if bicycle.frame else None,
-            'chain': bicycle.chain[0].key.id() if bicycle.chain else None,
-            'fork': bicycle.fork[0].key.id() if bicycle.fork else None,
-            'brakes': bicycle.brakes[0].key.id() if bicycle.brakes else None,
-        }
-    })
+@app.route('/bicystore/api/v1/bicycles', methods=['GET', 'POST'])
+def bicycle():
+    if request.method == 'POST':
+        bicycle = ModelController.get_model_for_creation(model_name='bicycle', request_dict=request.json)
+        if bicycle is None:
+            abort(400)
+        bicycle.put()
+        return jsonify({
+            'bicycle': {
+                'id': bicycle.key.id(),
+                'wheels': bicycle.wheels[0].key.id() if bicycle.wheels else None,
+                'saddle': bicycle.saddle[0].key.id() if bicycle.saddle else None,
+                'frame': bicycle.frame[0].key.id() if bicycle.frame else None,
+                'chain': bicycle.chain[0].key.id() if bicycle.chain else None,
+                'fork': bicycle.fork[0].key.id() if bicycle.fork else None,
+                'brakes': bicycle.brakes[0].key.id() if bicycle.brakes else None,
+            }
+        })
 
 
 @app.route('/bicystore/api/v1/wheels', methods=['GET', 'POST'])
 def wheels():
-    wheel = ModelController.get_model_by_slug_name('wheel')
+    wheel = ModelController.get_instance_by_slug_name('wheel')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)
@@ -96,7 +95,7 @@ def wheels():
 
 @app.route('/bicystore/api/v1/saddles', methods=['GET', 'POST'])
 def saddles():
-    saddle = ModelController.get_model_by_slug_name('saddle')
+    saddle = ModelController.get_instance_by_slug_name('saddle')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)
@@ -121,7 +120,7 @@ def saddles():
 
 @app.route('/bicystore/api/v1/frames', methods=['GET', 'POST'])
 def get_frames():
-    frame = ModelController.get_model_by_slug_name('frame')
+    frame = ModelController.get_instance_by_slug_name('frame')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)
@@ -146,7 +145,7 @@ def get_frames():
 
 @app.route('/bicystore/api/v1/chains', methods=['GET', 'POST'])
 def chains():
-    chain = ModelController.get_model_by_slug_name('chain')
+    chain = ModelController.get_instance_by_slug_name('chain')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)
@@ -171,7 +170,7 @@ def chains():
 
 @app.route('/bicystore/api/v1/forks', methods=['GET', 'POST'])
 def forks():
-    fork = ModelController.get_model_by_slug_name('fork')
+    fork = ModelController.get_instance_by_slug_name('fork')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)
@@ -196,7 +195,7 @@ def forks():
 
 @app.route('/bicystore/api/v1/brakes', methods=['GET', 'POST'])
 def brakes():
-    brake = ModelController.get_model_by_slug_name('brake')
+    brake = ModelController.get_instance_by_slug_name('brake')
     if request.method == 'POST':
         if not request.json or not 'name' in request.json:
             abort(400)

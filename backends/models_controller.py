@@ -18,41 +18,45 @@ class ModelController:
         pass
 
     @classmethod
-    def get_model_by_slug_name(cls, model_name, **kwargs):
+    def get_instance_by_slug_name(cls, model_name, **kwargs):
         model = cls.MODELS.get(model_name)
         if model is not None:
             instance = model(**kwargs)
             return instance
 
     @classmethod
-    def all_parts_model(cls):
-        return Wheel, Saddle, Frame, Chain, Fork, Brake
+    def get_model_by_slug_name(cls, model_name):
+        model = cls.MODELS.get(model_name)
+        if model is not None:
+            return model
 
     @classmethod
     def get_model_for_creation(cls, model_name, request_dict):
-        parameters_dict = {}
-        for key, value in request_dict.iteritems():
-            if key not in cls.MODELS.keys():
-                return None
-            if value is not None:
-                model = cls.get_model_by_slug_name(key)
-                model = model.get_by_id(value)
-                if model is not None:
-                    parameters_dict.update({key:(model,)})
-
-        return cls.get_model_by_slug_name(model_name, **parameters_dict)
+        params = cls.process_parameters_from_dict(request_dict)
+        if params is not None:
+            return cls.get_instance_by_slug_name(model_name, **params)
+        return None
 
     @classmethod
-    def get_model_for_update(cls, model_name, request_dict):
-        import pdb; pdb.set_trace()
+    def process_parameters_from_dict(cls, request_dict):
         parameters_dict = {}
         for key, value in request_dict.iteritems():
             if key not in cls.MODELS.keys():
                 return None
             if value is not None:
-                model = cls.get_model_by_slug_name(key)
+                model = cls.get_instance_by_slug_name(key)
                 model = model.get_by_id(value)
                 if model is not None:
                     parameters_dict.update({key:(model,)})
+        if parameters_dict:
+            return parameters_dict
+        return None
 
-        return cls.get_model_by_slug_name(model_name, **parameters_dict)
+    @classmethod
+    def get_model_for_update(cls, id_model, model_name, request_dict):
+        parameters = cls.process_parameters_from_dict(request_dict)
+        model = cls.get_model_by_slug_name(model_name).get_by_id(id_model)
+
+        for key, value in parameters.iteritems():
+            setattr(model, key, value)
+        return model
