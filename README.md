@@ -1,5 +1,9 @@
 # bicystore
 
+For consume API:
+
+* [Go docs](docs/api_docs.md)
+
 Example of Flask Api in App engine
 
 Install libraries (It's very important -t parameter)
